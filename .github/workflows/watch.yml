@@ -1,4 +1,4 @@
-name: Alternate Verfuegbarkeits-Watcher
+name: RTX 5090 Verfuegbarkeits-Watcher
 
 on:
   schedule:
@@ -26,6 +26,8 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           MAIL_TO: fdaxner@icloud.com
+          # Preis-Limit in Euro - hier anpassen, wenn sich das Budget aendert.
+          MAX_PRICE: "3850"
         run: python check_availability.py
 
       - name: Commit state

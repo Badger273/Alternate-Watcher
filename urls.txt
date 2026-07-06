@@ -1,4 +1,12 @@
-# Ein Alternate-Produktlink pro Zeile.
+# Ein Produktlink pro Zeile - egal von welchem Shop (Alternate, Cyberport,
+# Kaufland, MediaMarkt, Saturn, Amazon, ...).
 # Zeilen mit "#" am Anfang werden ignoriert.
+#
+# Es wird nur benachrichtigt, wenn ein Produkt VERFUEGBAR ist UND der Preis
+# das Limit (MAX_PRICE, siehe .github/workflows/watch.yml) nicht ueberschreitet.
+#
+# Hinweis Amazon: Amazon blockiert automatisierte Abfragen von Cloud-Servern
+# haeufig mit Captchas - Amazon-Links funktionieren, koennen aber oefter als
+# "Status unbekannt" enden als bei anderen Shops.
 https://www.alternate.de/ASUS/GeForce-RTX-5090-ROG-ASTRAL-GAMING-OC-Grafikkarte/html/product/100110139
 https://www.alternate.de/ASUS/GeForce-RTX-5090-TUF-GAMING-OC-Grafikkarte/html/product/100110147
