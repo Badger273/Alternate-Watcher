@@ -1,12 +1,35 @@
-# Ein Produktlink pro Zeile - egal von welchem Shop (Alternate, Cyberport,
-# Kaufland, MediaMarkt, Saturn, Amazon, ...).
-# Zeilen mit "#" am Anfang werden ignoriert.
+# Ein Produktlink pro Zeile. Zeilen mit "#" davor werden ignoriert.
 #
 # Es wird nur benachrichtigt, wenn ein Produkt VERFUEGBAR ist UND der Preis
-# das Limit (MAX_PRICE, siehe .github/workflows/watch.yml) nicht ueberschreitet.
+# das Limit nicht ueberschreitet (siehe MAX_PRICE in
+# .github/workflows/watch.yml, aktuell 3850 Euro).
 #
-# Hinweis Amazon: Amazon blockiert automatisierte Abfragen von Cloud-Servern
-# haeufig mit Captchas - Amazon-Links funktionieren, koennen aber oefter als
-# "Status unbekannt" enden als bei anderen Shops.
+# STRATEGIE: Viele grosse Haendler (Kaufland, notebooksbilliger, Cyberport,
+# MediaMarkt/Saturn, Mindfactory, Caseking, Amazon) blockieren automatisierte
+# Abfragen oder laden Preise nur per JavaScript nach - ein einfaches Skript
+# kommt dort nicht zuverlaessig durch.
+#
+# Deshalb nutzen wir stattdessen die Preisvergleichsseite Geizhals: eine
+# einzige Geizhals-Seite pro Hersteller/Modell zeigt automatisch die
+# guenstigsten AKTUELLEN Angebote von vielen Haendlern gleichzeitig
+# (Alternate, Mindfactory, Cyberport, Caseking, Kaufland, ...) - dadurch
+# ist trotzdem eine breite Shop-Abdeckung moeglich, ohne jeden Shop einzeln
+# ansprechen zu muessen.
+#
+# Neues Modell/Hersteller hinzufuegen: die passende Geizhals-Vergleichsseite
+# suchen (z.B. "geizhals.de <Hersteller> RTX 5090") und den Link hier eintragen.
+
+# --- Geizhals: deckt automatisch sehr viele Haendler pro Hersteller ab ---
+https://geizhals.de/asus-geforce-rtx-5090-v186805.html
+https://geizhals.de/msi-geforce-rtx-5090-v186742.html
+https://geizhals.de/gigabyte-geforce-rtx-5090-v186695.html
+https://geizhals.de/zotac-geforce-rtx-5090-v186816.html
+https://geizhals.de/palit-geforce-rtx-5090-v186848.html
+https://geizhals.de/pny-geforce-rtx-5090-v188318.html
+https://geizhals.de/gainward-geforce-rtx-5090-v186835.html
+https://geizhals.de/inno3d-geforce-rtx-5090-v188241.html
+https://geizhals.de/nvidia-geforce-rtx-5090-founders-edition-a3381601.html
+
+# --- Alternate: funktioniert auch direkt zuverlaessig, als Zusatz ---
 https://www.alternate.de/ASUS/GeForce-RTX-5090-ROG-ASTRAL-GAMING-OC-Grafikkarte/html/product/100110139
 https://www.alternate.de/ASUS/GeForce-RTX-5090-TUF-GAMING-OC-Grafikkarte/html/product/100110147

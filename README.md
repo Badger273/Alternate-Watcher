@@ -1,25 +1,41 @@
 # RTX 5090 Verfuegbarkeits-Watcher
 
 Prueft alle 5 Minuten automatisch (via GitHub Actions) eine Liste von
-Produktlinks - egal von welchem Shop - und schickt eine E-Mail, sobald ein
-Produkt **verfuegbar** ist **und** der Preis unter dem eingestellten Limit
-liegt.
+Produktlinks und schickt eine E-Mail, sobald ein Produkt **verfuegbar** ist
+**und** der Preis unter dem eingestellten Limit liegt.
 
-## Neues Produkt hinzufuegen
+## Warum Geizhals statt einzelner Shops?
 
-Einfach den Produktlink in [urls.txt](urls.txt) in eine neue Zeile eintragen
-und committen. Name und Preis werden automatisch von der Seite gelesen
-(schema.org-Produktdaten, die die meisten groesseren Shops einbetten -
-Alternate, Cyberport, Kaufland, MediaMarkt, Saturn, notebooksbilliger, ...).
+Die meisten grossen Haendler (Amazon, Kaufland, notebooksbilliger,
+Cyberport, MediaMarkt/Saturn, Mindfactory, Caseking, ...) blockieren
+automatisierte Abfragen oder laden Preise erst per JavaScript nach - ein
+einfaches Skript kommt dort nicht zuverlaessig durch (das wurde getestet:
+alle genannten Shops antworten mit Fehler 403 oder liefern keine Preisdaten).
 
-**Wichtig:** Es sollten Links zu den offiziellen Produktseiten von normalen
-Haendlern sein (nicht zu privaten Kleinanzeigen wie eBay Kleinanzeigen) -
-nur so ist sichergestellt, dass es sich um neue Ware mit ausgewiesener
-Umsatzsteuer handelt.
+Die Preisvergleichsseite [Geizhals](https://geizhals.de) wird dagegen nicht
+blockiert und zeigt automatisch den guenstigsten aktuellen Preis ueber viele
+Haendler hinweg direkt im Seitentitel an. Eine einzige Geizhals-Seite pro
+Hersteller deckt dadurch indirekt sehr viele Shops gleichzeitig ab.
 
-**Amazon:** Amazon blockiert automatisierte Abfragen von Cloud-Servern
-haeufig mit Captchas. Amazon-Links werden versucht, das Ergebnis kann aber
-haeufiger "Status unbekannt" sein als bei anderen Shops.
+**Alternate.de ist die Ausnahme:** dort funktioniert die direkte Abfrage
+zuverlaessig, deshalb sind zusaetzlich zwei direkte Alternate-Links in
+[urls.txt](urls.txt) enthalten.
+
+## Neues Produkt/Modell hinzufuegen
+
+- **Ueber Geizhals (empfohlen fuer neue Hersteller/Modelle):** die passende
+  Vergleichsseite suchen (z. B. "geizhals.de MSI RTX 5090") und den Link in
+  [urls.txt](urls.txt) eintragen.
+- **Direkter Shop-Link:** funktioniert nur zuverlaessig, wenn der Shop
+  schema.org-Produktdaten einbettet und keinen Bot-Schutz hat (bei Alternate
+  bestaetigt). Bei anderen Shops landet das Ergebnis meist bei "Status
+  unbekannt".
+
+Name und Preis werden in beiden Faellen automatisch ausgelesen.
+
+**Wichtig:** Nur Links zu offiziellen Haendler-/Vergleichsseiten verwenden
+(keine privaten Kleinanzeigen wie eBay Kleinanzeigen) - so ist sichergestellt,
+dass es sich um neue Ware mit ausgewiesener Umsatzsteuer handelt.
 
 ## Preis-Limit aendern
 

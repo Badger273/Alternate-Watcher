@@ -5,19 +5,22 @@ RTX-5090-Watcher (Cloud-Variante fuer GitHub Actions)
 Wird von .github/workflows/watch.yml alle 5 Minuten automatisch ausgefuehrt.
 
 Neues Produkt hinzufuegen: einfach den Produktlink in urls.txt eintragen
-(eine URL pro Zeile) - egal von welchem Shop. Name und Preis werden
-automatisch von der Seite gelesen (schema.org-Produktdaten, die die meisten
-groesseren Shops einbetten).
+(eine URL pro Zeile). Unterstuetzt werden zwei Arten von Links:
+
+  1. Direkte Shop-Produktseiten, die schema.org-Produktdaten einbetten
+     (funktioniert zuverlaessig z.B. bei Alternate.de).
+  2. Geizhals-Preisvergleichsseiten (geizhals.de/.at) - decken dadurch
+     indirekt sehr viele Haendler gleichzeitig ab, da viele grosse Shops
+     (Amazon, Kaufland, notebooksbilliger, Cyberport, MediaMarkt/Saturn,
+     Mindfactory, Caseking, ...) automatisierte Abfragen blockieren oder
+     Preise nur per JavaScript nachladen und daher NICHT direkt abgefragt
+     werden koennen.
 
 Es wird nur benachrichtigt, wenn ein Produkt VERFUEGBAR ist UND der Preis
 MAX_PRICE nicht ueberschreitet.
 
 Merkt sich den letzten bekannten Status in state.json, damit nicht bei jedem
 Lauf erneut eine Mail verschickt wird.
-
-Hinweis Amazon: Amazon blockiert automatisierte Abfragen von Cloud-Servern
-haeufig mit Captchas. Amazon-Links werden versucht, koennen aber oefter als
-"Status unbekannt" enden als bei anderen Shops.
 """
 
 import json
@@ -179,6 +182,34 @@ def extract_name(html):
     return None
 
 
+def parse_german_price(raw):
+    try:
+        return float(raw.replace(".", "").replace(",", "."))
+    except ValueError:
+        return None
+
+
+# Preisvergleichsseiten wie Geizhals binden keine schema.org-Produktdaten
+# ein, packen den guenstigsten aktuellen Preis aber direkt in den Seitentitel
+# ("... ab EUR 4178,11 (2026) | Preisvergleich ..."). Fehlt dieser Preis im
+# Titel, gibt es aktuell kein Angebot -> nicht verfuegbar. Das deckt indirekt
+# sehr viele Shops gleichzeitig ab (Geizhals listet Angebote vieler Haendler).
+GEIZHALS_DOMAINS = {"geizhals.de", "geizhals.at", "www.geizhals.de", "www.geizhals.at"}
+GEIZHALS_TITLE_RE = re.compile(r"^(.*?)\s+ab\s*€\s*([\d.,]+)\s*\(\d{4}\)")
+
+
+def extract_geizhals(title):
+    """Rueckgabe: (name, price, availability) fuer eine Geizhals-Produktseite."""
+    m = GEIZHALS_TITLE_RE.search(title)
+    if not m:
+        # Kein Preis im Titel -> aktuell keine Angebote gelistet.
+        clean_name = re.split(r"\s*\|\s*Preisvergleich", title)[0].strip()
+        return clean_name, None, False
+    name = m.group(1).strip()
+    price = parse_german_price(m.group(2))
+    return name, price, (price is not None)
+
+
 def check_product(url):
     """
     Rueckgabe: dict mit name, price, buyable (bool|None).
@@ -194,7 +225,7 @@ def check_product(url):
         return {"name": url, "price": None, "buyable": None}
 
     if resp.status_code != 200:
-        log(f"  ! HTTP {resp.status_code} (evtl. Bot-Schutz, z.B. bei Amazon)")
+        log(f"  ! HTTP {resp.status_code} (evtl. Bot-Schutz dieses Shops)")
         return {"name": url, "price": None, "buyable": None}
 
     html = resp.text
@@ -205,16 +236,24 @@ def check_product(url):
     name = extract_name(html) or url
     price, availability = extract_price_and_availability(html)
 
+    if domain in GEIZHALS_DOMAINS:
+        # Geizhals bindet kein schema.org ein - Preis/Name/Verfuegbarkeit
+        # stattdessen aus dem Seitentitel lesen (deckt indirekt viele Shops ab).
+        gh_name, gh_price, gh_available = extract_geizhals(name)
+        name, price, availability = gh_name, gh_price, gh_available
+
     # Shopspezifische Zusatzpruefung (siehe DOMAIN_UNAVAILABLE_TEXT oben).
     unavailable_text = DOMAIN_UNAVAILABLE_TEXT.get(domain)
     if unavailable_text and unavailable_text.lower() in html.lower():
         availability = False
 
-    if price is None or availability is None:
+    # Preis wird nur gebraucht, wenn das Produkt ueberhaupt verfuegbar ist.
+    # Ist es sicher NICHT verfuegbar, ist ein fehlender Preis kein Problem.
+    if availability is None or (availability and price is None):
         log(f"  ? Preis/Verfuegbarkeit nicht sicher auslesbar (price={price}, availability={availability})")
         return {"name": name, "price": price, "buyable": None}
 
-    buyable = availability and price <= MAX_PRICE
+    buyable = bool(availability) and price is not None and price <= MAX_PRICE
     return {"name": name, "price": price, "buyable": buyable}
 
 
