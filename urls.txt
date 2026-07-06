@@ -1,0 +1,4 @@
+# Ein Alternate-Produktlink pro Zeile.
+# Zeilen mit "#" am Anfang werden ignoriert.
+https://www.alternate.de/ASUS/GeForce-RTX-5090-ROG-ASTRAL-GAMING-OC-Grafikkarte/html/product/100110139
+https://www.alternate.de/ASUS/GeForce-RTX-5090-TUF-GAMING-OC-Grafikkarte/html/product/100110147
