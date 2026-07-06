@@ -55,3 +55,6 @@ In [.github/workflows/watch.yml](.github/workflows/watch.yml) den Wert von
 
 Manuell testen: Tab **Actions** -> Workflow "RTX 5090 Verfuegbarkeits-Watcher"
 -> **Run workflow**.
+
+<!-- Trivialer Commit, um den GitHub-Zeitplan bei einem neuen Repo anzustossen -->
+
